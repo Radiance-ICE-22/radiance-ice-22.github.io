@@ -41,11 +41,9 @@
 
   // ── Galley features ─────────────────────────────────────────────────────────
   const FEATURES = [
-    { f: "inspect_view", t: "Click a Gaussian, see what it means", d: "Pick any point in the splat; Galley ranks a list of labels by how well that Gaussian’s feature matches each one.", fact: "cosine similarity to CLIP text embeddings" },
     { f: "floor_view", t: "Relevancy floor", d: "Lower the floor and more of the room lights up; the legend counts the Gaussians above it.", fact: "8,328 → 31,658 lit as the floor drops 0.69 → 0.50" },
     { f: "pca_view", t: "What the features look like", d: "A PCA of the per-Gaussian features: surfaces with similar meaning get similar colours.", fact: "532,361 feature rows, one per Gaussian" },
     { f: "compare_view", t: "Lift and FMGS side by side", d: "The same query on both feature backends, with one shared camera.", fact: "lift 22/29 · FMGS 15/29 (multi-scale teachers)", shape: "wide" },
-    { f: "evaluate_view", t: "Score every annotation", d: "Query all runs every annotated object, and every object that is not in the room, and marks each hit or miss. Shown at 3× speed.", fact: "21 backroom annotations, 3 of them absent", shape: "tall" },
     { f: "send", t: "Send the goal to a course", d: "One click writes the goal and its approach point into a course and opens the course editor.", fact: "goal, label and approach saved with the course", shape: "wide" },
     { f: "gapcheck", t: "Collisions caught before flight", d: "A straight course to the grandfather clock would pass through a bench. The clearance check flags it in the preview.", fact: "7.75 m path · min gap −0.088 m at 3.95 s (limit 0.15 m)", shape: "wide" },
     { f: "course_cart", t: "A semantic course, previewed", d: "The course built for “cart” flown as a minimum-snap preview over the splat, with speed, thrust and clearance charts.", fact: "6 keyframes · 12.78 m · 28 s", shape: "wide" },
