@@ -27,10 +27,10 @@ function start() {
   new ResizeObserver(size).observe(box); size();
   new GLTFLoader().load("media/drone/drone.glb", (g) => {
     const m = g.scene;
-    m.rotation.x = -Math.PI / 2;                       // CAD is z-up, three.js is y-up
+    m.rotation.x = Math.PI / 2;                        // CAD z axis points down here: flip so the battery sits on top
     const b = new THREE.Box3().setFromObject(m), c = b.getCenter(new THREE.Vector3()), s = b.getSize(new THREE.Vector3()).length();
     m.position.sub(c); scene.add(m);
-    camera.position.set(s * 0.55, s * 0.42, s * 0.62); controls.target.set(0, 0, 0); controls.update();
+    camera.position.set(s * 0.95, s * 0.75, s * 1.05); controls.target.set(0, 0, 0); controls.update();
     msg.textContent = "drag to rotate · 33 × 29 × 10 cm";
   }, undefined, () => { msg.textContent = "the model could not be loaded"; });
   const tick = () => { controls.update(); renderer.render(scene, camera); requestAnimationFrame(tick); };
