@@ -62,8 +62,11 @@
     <p>Its goal input is just numbers, with no idea <em>what</em> the target is. Each policy learns one trajectory, every new goal needs new hand-made data, and results with several goals are inconsistent.</p>
   </div>
   <div class="aim">
-    <p class="eyebrow">Aim and hypothesis</p>
-    <p class="aim-big">Let semantics generate SV-Net’s training data automatically.</p>
+    <p class="eyebrow">Aims and hypothesis</p>
+    <ol class="aims">
+      <li class="aim-big">Let semantics generate SV-Net’s training data automatically.</li>
+      <li class="aim-big">Develop a language-conditioned visuomotor policy that enables a drone to autonomously navigate to open-vocabulary target objects in the trained environment.</li>
+    </ol>
     <p>Goals are named in words and found in the 3D scene; courses and expert flights are generated around them.</p>
     <p><strong>We hypothesise</strong> that a policy trained this way performs better on <strong>dynamic goals</strong> (the same goal moves) and <strong>multi-goal</strong> scenarios.</p>
   </div>

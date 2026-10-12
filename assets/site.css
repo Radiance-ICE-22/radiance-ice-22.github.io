@@ -82,7 +82,10 @@ nav a:hover { color: var(--fg); background: var(--bg2); }
 .split > div { display: grid; gap: 12px; align-content: start; min-width: 0; }
 .aim { background: var(--accent); color: var(--accent-ink); border-radius: var(--r); padding: 24px; }
 .aim .eyebrow { color: inherit; opacity: .85; }
-.aim-big { font: 800 clamp(21px, 2.6vw, 27px)/1.25 var(--display); }
+.aim-big { font: 800 clamp(19px, 2.2vw, 23px)/1.28 var(--display); }
+.aims { margin: 0; padding: 0; list-style: none; counter-reset: a; display: grid; gap: 12px; }
+.aims li { counter-increment: a; display: grid; grid-template-columns: 1.6em 1fr; }
+.aims li::before { content: counter(a); font: 600 0.8em/1.6 var(--mono); opacity: .8; }
 @media (min-width: 860px) { .split { grid-template-columns: 1.1fr 1fr; } }
 
 /* pipeline */
