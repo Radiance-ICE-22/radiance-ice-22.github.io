@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Radiance · Language-Guided Drone Goals</title>
+<meta name="description" content="Team Radiance, University of Moratuwa: scene semantics that turn a phrase into a 3D goal, so a vision-only drone policy's training data can be generated automatically.">
+<meta property="og:title" content="Radiance · Language-Guided Drone Goals">
+<meta property="og:description" content="Type a phrase, find the object in a 3D Gaussian splat, fly an expert course to it. Final-year project, CSE, University of Moratuwa.">
+<meta property="og:image" content="https://radiance-ice-22.github.io/media/galley/phrase_red_tool_chest_view.jpg">
+<meta name="theme-color" content="#8a1c1c">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%238a1c1c'/%3E%3Ccircle cx='16' cy='16' r='6' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#top" aria-label="Radiance, back to top"><span class="dot" aria-hidden="true"></span>Radiance</a>
+    <nav aria-label="Sections">
+      <a href="#demo">Demo</a><a href="#approach">Approach</a><a href="#results">Results</a><a href="#galley">Galley</a><a href="#flights">Flights</a><a href="#drone">Drone</a><a href="#team">Team</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero wrap">
+  <p class="eyebrow">Team Radiance · Dept. of Computer Science &amp; Engineering · University of Moratuwa</p>
+  <h1>Language-Guided Goal Understanding for Simulation-Trained Visuomotor Drone Navigation</h1>
+  <p class="thesis">Scene semantics automate the training data a vision-only drone policy learns from.</p>
+  <p class="lede">We give every Gaussian of a photorealistic 3D room a meaning. A phrase such as “red tool chest” then becomes a 3D goal, an approach point the drone can reach safely, and an expert flight to it, with no hand-placed waypoints.</p>
+</section>
+
+<section id="demo" class="wrap demo">
+  <div class="demo-head">
+    <h2>Try a phrase</h2>
+    <p>Pick a phrase to see what our console, Galley, returned for it in the backroom scene (532,361 Gaussians). The clips are screen recordings, not renders.</p>
+  </div>
+  <div class="phrases" role="tablist" aria-label="Phrases" id="phrases"></div>
+  <figure class="player">
+    <video id="phrase-video" muted playsinline autoplay loop preload="metadata" poster="media/galley/phrase_red_tool_chest_view.jpg">
+      <source src="media/galley/phrase_red_tool_chest_view.mp4" type="video/mp4">
+    </video>
+    <figcaption id="phrase-result" aria-live="polite"></figcaption>
+  </figure>
+  <ul class="legend-key" aria-label="What the colours mean">
+    <li><span class="sw heat" aria-hidden="true"></span>Gaussians coloured by relevancy to the phrase</li>
+    <li><span class="sw goal" aria-hidden="true"></span>goal: the centre of the best cluster</li>
+    <li><span class="sw appr" aria-hidden="true"></span>approach point, with the drone’s 0.19 m body sphere</li>
+  </ul>
+</section>
+
+<section class="wrap split">
+  <div>
+    <p class="eyebrow">The problem</p>
+    <h2>A policy that sees, but does not understand</h2>
+    <p>SOUS VIDE’s SV-Net flies a drone from camera images alone, trained inside a photorealistic 3D copy of the room. Its training data is made by hand: a person places waypoints and an expert controller flies that one course.</p>
+    <p>Its goal input is just numbers, with no idea <em>what</em> the target is. Each policy learns one trajectory, every new goal needs new hand-made data, and results with several goals are inconsistent.</p>
+  </div>
+  <div class="aim">
+    <p class="eyebrow">Aim and hypothesis</p>
+    <p class="aim-big">Let semantics generate SV-Net’s training data automatically.</p>
+    <p>Goals are named in words and found in the 3D scene; courses and expert flights are generated around them.</p>
+    <p><strong>We hypothesise</strong> that a policy trained this way performs better on <strong>dynamic goals</strong> (the same goal moves) and <strong>multi-goal</strong> scenarios.</p>
+  </div>
+</section>
+
+<section id="approach" class="wrap">
+  <p class="eyebrow">Approach</p>
+  <h2>From a phone video to a trained policy</h2>
+  <ol class="pipeline">
+    <li class="built"><span class="step">1 · Capture</span><b>Room → 3D splat</b><span>Phone video becomes a metric 3D Gaussian splat (SfM, ArUco marker for scale).</span></li>
+    <li class="built"><span class="step">2 · Add meaning</span><b>Semantic splat</b><span>CLIP and DINOv2 features from 270 photos are lifted onto every Gaussian.</span></li>
+    <li class="built"><span class="step">3 · Ask</span><b>Phrase → 3D goal</b><span>Relevancy, clustering, a safe approach point. Offline, on the CPU.</span></li>
+    <li class="built"><span class="step">4 · Expert flight</span><b>Course + MPC</b><span>Minimum-snap course; the MPC expert flies it while FiGS renders the camera.</span></li>
+    <li class="next"><span class="step">5 · Datasets</span><b>Automated rollouts</b><span>Many goals, moving goals, multi-goal courses.</span></li>
+    <li class="next"><span class="step">6 · SV-Net</span><b>Train and test the policy</b><span>Images → controls at 20 Hz, onboard.</span></li>
+  </ol>
+  <div class="pipe-legend"><span class="tag built">Built and evaluated</span><span class="tag next">Next: tests the hypothesis</span><span class="note">No language model ever runs on the drone: language is resolved to a goal before training.</span></div>
+</section>
+
+<section id="results" class="wrap">
+  <p class="eyebrow">Findings</p>
+  <h2>Objects found from a phrase</h2>
+  <p class="lede narrow">Top-1 hits out of 29 objects in two rooms (13 backroom, 16 flightroom), annotated before any result was seen. Four ways of building the 2D teacher features, each lifted onto the splat without training (lift) or learned by a trained feature field (FMGS).</p>
+  <div class="charts">
+    <figure class="chart">
+      <div id="bars" class="bars" role="img" aria-label="Top-1 hits out of 29. Single-scale: lift 20, FMGS 15. Multi-scale: lift 22, FMGS 15. SAM regions: lift 21, FMGS 12. ViT-L/14: lift 19, FMGS 10."></div>
+      <figcaption><span class="k lift"></span>Lift (training-free) <span class="k fmgs"></span>FMGS (trained feature field). The training-free lift beats the trained field for every teacher; FMGS’s matches scatter across the room.</figcaption>
+    </figure>
+    <figure class="chart">
+      <div id="lines" class="lines" role="img" aria-label="Mean relevancy per stage. Found objects: 0.68 in the 2D teacher, 0.75 at the best crop scale, 0.68 in 3D. Missed objects: 0.49, 0.58, 0.52. Detection floor 0.55."></div>
+      <figcaption>Where is the signal lost? Mean relevancy at three stages. Lifting into 3D loses almost nothing (−0.007 for found objects); the signal is lost in the 2D teacher.</figcaption>
+    </figure>
+  </div>
+  <dl class="numbers">
+    <div><dt>0.7–2.8 s</dt><dd>per query, CPU only (single-scale / multi-scale features)</dd></div>
+    <div><dt>+4.2 dB</dt><dd>PSNR from refined camera poses</dd></div>
+    <div><dt>20 ms</dt><dd>to recolour 532 k Gaussians</dd></div>
+    <div><dt>≤ 73 mm</dt><dd>expert tracking error flying to a phrase goal</dd></div>
+  </dl>
+  <p class="caveat">29 objects is a small set: no difference between the four teacher designs is statistically significant. The multi-scale lead over single-scale comes partly from its detection floor; compared at an equal number of false detections, SAM regions without level choice find the most (24 of 29). Details in the <a href="https://github.com/Radiance-ICE-22/Radiance-Environment-Setup/blob/main/docs/report/semantic_embedding_report.pdf">semantic embedding report</a>.</p>
+</section>
+
+<section id="galley" class="wrap">
+  <p class="eyebrow">Galley, our console</p>
+  <h2>Every step in one web app</h2>
+  <p class="lede narrow">Galley runs the whole pipeline on the lab GPU: capture, splat training, semantic features, the splat editor, the course editor, expert flights and SV-Net cohorts. Tap a feature to play its recording.</p>
+  <div class="features" id="features"></div>
+</section>
+
+<section id="flights" class="wrap">
+  <p class="eyebrow">Simulation</p>
+  <h2>Expert flights, and where the student is</h2>
+  <div class="flights">
+    <figure><video src="media/flights/backroom_flight.mp4" poster="media/flights/backroom_flight.jpg" controls muted playsinline loop preload="none"></video>
+      <figcaption><b>Backroom, to the “cart” goal.</b> The course ends at the approach point found for “cart”; FiGS renders what the drone’s camera sees while the MPC expert flies it.</figcaption></figure>
+    <figure><video src="media/flights/flightroom_flight.mp4" poster="media/flights/flightroom_flight.jpg" controls muted playsinline loop preload="none"></video>
+      <figcaption><b>Flightroom loop.</b> The same pipeline in the second room.</figcaption></figure>
+  </div>
+  <div class="student">
+    <div class="student-text">
+      <p class="eyebrow">SV-Net student · status</p>
+      <h3>Trained end to end, not flying yet</h3>
+      <p>Our first student cohort (Maverick, circuit course) runs through the full SV-Net pipeline, but it does not yet fly the course: the expert tracks to 1.7 cm, the student’s mean tracking error is 9.4 m. The next cohort uses a larger dataset. Testing the hypothesis waits on a student that flies.</p>
+    </div>
+    <div class="pair">
+      <figure><video src="media/flights/sim_circuit_expert_rgb.mp4" poster="media/flights/sim_circuit_expert_rgb.jpg" controls muted playsinline loop preload="none"></video><figcaption>Expert (MPC)</figcaption></figure>
+      <figure><video src="media/flights/sim_circuit_Maverick_rgb.mp4" poster="media/flights/sim_circuit_Maverick_rgb.jpg" controls muted playsinline loop preload="none"></video><figcaption>Student (SV-Net)</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="drone" class="wrap">
+  <p class="eyebrow">Proposed drone</p>
+  <h2>Built to carry the policy</h2>
+  <div class="drone">
+    <figure class="viewer">
+      <div id="drone-3d" class="drone-3d" aria-label="3D model of the drone; drag to rotate">
+        <button type="button" id="drone-load" class="load">Load the 3D model (3 MB)</button>
+      </div>
+      <figcaption>CAD model: ducted prop guards, 2205 motors, a front camera, and a Jetson Orin Nano on top to run SV-Net onboard. Drag to rotate.</figcaption>
+    </figure>
+    <div class="fea">
+      <h3>Prop guard: first natural frequency</h3>
+      <p>Modal analysis in Autodesk Fusion of <b>PropGuard v9</b>, printed in PA 12 carbon-fibre nylon (EOS PA 603-CF): 8 modes, 32,849 parabolic elements, fixed at two mounts.</p>
+      <div id="modes" class="modes" role="img" aria-label="First eight natural frequencies: 259, 267, 286, 295, 355, 445, 460 and 501 hertz. Target: above 200 hertz."></div>
+      <p class="fea-note">The first mode sits at <b>259 Hz</b>, 30 % above the 200 Hz target, keeping the guard’s resonance away from the frequencies the motors excite.</p>
+      <div class="mode-shots">
+        <figure><img src="media/fea/mode1_259hz.jpg" alt="Mode 1 at 259 Hz: the outer rim of one duct moves most" loading="lazy"><figcaption>Mode 1 · 259.0 Hz</figcaption></figure>
+        <figure><img src="media/fea/mode2_267hz.jpg" alt="Mode 2 at 266.6 Hz" loading="lazy"><figcaption>Mode 2 · 266.6 Hz</figcaption></figure>
+        <figure><img src="media/fea/mode3_286hz.jpg" alt="Mode 3 at 285.8 Hz" loading="lazy"><figcaption>Mode 3 · 285.8 Hz</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="roadmap" class="wrap">
+  <p class="eyebrow">Roadmap</p>
+  <h2>Where we are</h2>
+  <ol class="roadmap">
+    <li><span>Replicate SOUS VIDE training and the FiGS simulator</span><em class="st done">Done</em></li>
+    <li><span>Semantic feature fields: build and compare</span><em class="st done">Done</em></li>
+    <li><span>Phrase → goal → course → expert flight</span><em class="st done">Done</em></li>
+    <li><span>Automatic datasets → test SV-Net (dynamic and multi-goal)</span><em class="st next">Next</em></li>
+    <li><span>Build the drone; fly on hardware</span><em class="st prog">In progress</em></li>
+  </ol>
+</section>
+
+<section id="team" class="wrap">
+  <p class="eyebrow">Team</p>
+  <h2>Team Radiance</h2>
+  <ul class="team">
+    <li><b>P.A.S. Anusara</b><span class="idx">220037P</span><span class="mail">savinu.22@cse.mrt.ac.lk</span></li>
+    <li><b>M.H.S. Gunathilaka</b><span class="idx">220199L</span><span class="mail">himala.22@cse.mrt.ac.lk</span></li>
+    <li><b>S.S. Waduge</b><span class="idx">220673K</span><span class="mail">sansika.22@cse.mrt.ac.lk</span></li>
+    <li><b>S. Yutharsan</b><span class="idx">220738P</span><span class="mail">yutharsan.22@cse.mrt.ac.lk</span></li>
+  </ul>
+  <p class="super">Supervisor: <b>Dr. Chathuranga Hettiarachchi</b></p>
+  <div class="links">
+    <a class="btn" href="https://github.com/Radiance-ICE-22/Radiance-Environment-Setup">Code and docs on GitHub</a>
+    <a class="btn ghost" href="https://github.com/Radiance-ICE-22/Radiance-Environment-Setup/blob/main/docs/report/semantic_embedding_report.pdf">Semantic embedding report (PDF)</a>
+    <a class="btn ghost" href="https://github.com/Radiance-ICE-22/Radiance-Environment-Setup/blob/main/docs/report/project_chronicle.pdf">Project chronicle (PDF)</a>
+  </div>
+  <p class="credit">Built on <a href="https://github.com/StanfordMSL/SousVide">SOUS VIDE and FiGS</a> by the Stanford Multi-Robot Systems Lab. Semantic features follow LERF and FMGS, with CLIP and DINOv2 teachers.</p>
+</section>
+
+</main>
+<footer class="wrap foot">Final-year project, Department of Computer Science &amp; Engineering, Faculty of Engineering, University of Moratuwa · Updated 12 Oct 2026</footer>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script src="assets/site.js" defer></script>
+<script type="module" src="assets/drone.js"></script>
+</body>
+</html>
